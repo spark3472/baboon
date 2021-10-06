@@ -67,7 +67,7 @@ int main(){
                     sem_wait(&semaphores->db);
                 }
                 printf("%d\n", sem_post(&semaphores->mutex));
-                cross((intptr_t)i, direction);
+                cross(i, direction);
                 sem_wait(&semaphores->mutex);
                 crossingE--;
                 if (crossingE == 0){
@@ -76,7 +76,7 @@ int main(){
                 sem_post(&semaphores->mutex);
             }else{
                 printf("%d\n",sem_wait(&semaphores->db));
-                cross((intptr_t)i, direction);
+                cross(i, direction);
                 printf("%d\n", sem_post(&semaphores->db));
             }
             exit(0);
