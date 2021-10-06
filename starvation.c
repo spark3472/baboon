@@ -31,6 +31,9 @@ void cross(int baboon, int direction){
         way = "west";
     }
     time_t now = time(0);
+    printf("Baboon %d getting on rope to go %s at time %ld\n", baboon, way, now);
+    sleep(1);
+    now = time(0);
     printf("Baboon %d traveling %s at time %ld\n", baboon, way, now);
     sleep(4);//change to four later;
     now = time(0);
@@ -59,9 +62,6 @@ int main(){
                     sem_wait(&semaphores->db);
                 }
                 sem_post(&semaphores->mutex);
-                time_t now = time(0);
-                printf("Baboon %d getting on rope to go east at time %ld\n", i, now);
-                sleep(1);
                 cross((intptr_t)i, direction);
                 sem_wait(&semaphores->mutex);
                 crossingE--;
@@ -70,9 +70,6 @@ int main(){
                 }
                 sem_post(&semaphores->mutex);
             }else{
-                time_t now = time(0);
-                printf("Baboon %d getting on rope to go west at time %ld\n", i, now);
-                sleep(1);
                 sem_wait(&semaphores->db);
                 cross((intptr_t)i, direction);
                 sem_post(&semaphores->db);
