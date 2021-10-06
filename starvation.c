@@ -13,14 +13,11 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-
-int crossingE = 0;
-//int crossingW = 0;
 sem_t print;
 struct my_sems{
    sem_t mutex;
    sem_t db;
-   //int crossingE;
+   int crossingE;
 };
 
 
@@ -51,42 +48,37 @@ int main(){
     if (fd < 0){
         perror("shm_open");
     }
-    //printf("%d\n", fd);
     struct my_sems *semaphores = mmap(NULL, sizeof(struct my_sems), PROT_READ | PROT_WRITE,
     MAP_SHARED, fd, 0);
-    printf("%d sem_init\n", sem_init(&semaphores->mutex, 1, 1));
-    printf("errno=%d\n", errno);
+    sem_init(&semaphores->mutex, 1, 1);
     sem_init(&semaphores->db, 1, 1);
-    //semaphores->crossingE = 0;
+    semaphores->crossingE = 0;
 
-    for(int i=0;i<3;i++){
+    for(int i=0;i<100;i++){
         direction = rand()%2;
-        sleep(rand()%6);
+        sleep((rand()%6)+1);
         if(fork() == 0){
             if (direction){
-                printf("%d\n",sem_wait(&semaphores->mutex));
-                crossingE++;
-                if (crossingE == 1){
+                sem_wait(&semaphores->mutex);
+                semaphores->crossingE++;
+                if (semaphores->crossingE == 1){
                     sem_wait(&semaphores->db);
                 }
-                printf("%d\n", sem_post(&semaphores->mutex));
+                sem_post(&semaphores->mutex);
                 cross(i, direction);
                 sem_wait(&semaphores->mutex);
-                crossingE--;
-                if (crossingE == 0){
+                semaphores->crossingE--;
+                if (semaphores->crossingE == 0){
                     sem_post(&semaphores->db);
                 }
                 sem_post(&semaphores->mutex);
             }else{
-                printf("%d\n",sem_wait(&semaphores->db));
+                sem_wait(&semaphores->db);
                 cross(i, direction);
-                printf("%d\n", sem_post(&semaphores->db));
+                sem_post(&semaphores->db);
             }
             exit(0);
         }
-    }
-    for(int i=0;i<3;i++){ // loop will run n times (n=5)
-        wait(NULL);
     }
     shm_unlink("shmname");
       
