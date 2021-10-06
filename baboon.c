@@ -54,6 +54,7 @@ int main(){
     int fd = shm_open("shmname", O_CREAT, O_RDWR);
     ftruncate(fd, sizeof(struct my_sems));
     struct my_sems *semaphores = mmap(0, 4069, PROT_READ, MAP_SHARED, fd, 0);
+    //semaphores->mutex
     sem_init(&semaphores->eastWard, 0, 1);
     sem_init(&semaphores->westWard, 0, 1);
     sem_init(&semaphores->mutexEast, 0, 1);
