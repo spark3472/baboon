@@ -46,9 +46,12 @@ int main(){
     srand(time(NULL));
     int direction;
     
-    int fd = shm_open("shmname", O_CREAT, O_RDWR);
+    int fd = shm_open("shmname", O_CREAT|O_RDWR, S_IRWXU);
     ftruncate(fd, sizeof(struct my_sems));
-    printf("%d\n", fd);
+    if (fd < 0){
+        perror("shm_open");
+    }
+    //printf("%d\n", fd);
     struct my_sems *semaphores = mmap(NULL, sizeof(struct my_sems), PROT_READ | PROT_WRITE,
     MAP_SHARED, fd, 0);
     printf("%d sem_init\n", sem_init(&semaphores->mutex, 1, 1));
